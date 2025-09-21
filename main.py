@@ -5,15 +5,20 @@ from googleapiclient.discovery import build
 from isodate import parse_duration  # à installer : pip install isodate
 from random import choice
 from datetime import datetime, timezone, timedelta
+import os.path
 
-#TOKEN = "MTM2MTgxMDExMzczNTY5MjUyMg.GlR5Je.7-gYi8vsDaKODJQT8TAk3et1uuOJmwwEx_OpTY"
-TOKEN = "MTM2OTAxOTg2Nzk2MDcwOTE2MQ.Gpaans.V9Sr3DpoPwJAEVwHVoX9OR3c6k3vuc6zx8Vm0k"
-#GUILD_ID = 925320149190459412 # ID du server Discord
-GUILD_ID = 1239690915560554608 # ID du server Discord
-#CHANNEL_ID = 925329891577196564  # ID du salon Discord
-CHANNEL_ID = 1239690916114075671  # ID du salon Discord
+if not os.path.isfile("prod"):
+    TOKEN = "MTM2OTAxOTg2Nzk2MDcwOTE2MQ.Gpaans.V9Sr3DpoPwJAEVwHVoX9OR3c6k3vuc6zx8Vm0k"
+    GUILD_ID = 1239690915560554608 # ID du server Discord
+    CHANNEL_ID = 1239690916114075671  # ID du salon Discord
+else:
+    TOKEN = "MTM2MTgxMDExMzczNTY5MjUyMg.GlR5Je.7-gYi8vsDaKODJQT8TAk3et1uuOJmwwEx_OpTY"
+    GUILD_ID = 925320149190459412 # ID du server Discord
+    CHANNEL_ID = 925329891577196564  # ID du salon Discord
+
 YOUTUBE_API_KEY = "AIzaSyBVxlQ2-Y6NoRHVVcuifY98PqNSkpiRgpY" # Clé d'API YouTube
 YOUTUBE_CHANNEL_ID = "UC4oqjwA0lPgwd4EH3rk_Www"  # ID de la chaîne YouTube
+SECOND_YOUTUBE_CHANNEL_ID = ""  # ID de la chaîne YouTube
 
 CHECK_INTERVAL = 300 # 5 minutes
 
@@ -25,7 +30,6 @@ EMOJIES = ["🔥","👍","😎","🤣","😝","❤️","🥳","😋","😂","�
 
 MC_EMOJIES = ["Coffre","Creeper","EnderMan","EnderDragon","Fleches","Bee","Gardien","Longuevue","HappyGhast","Perroquet","Piocheendiamant","Poissoncuit","Pomme","Poulet","Pouletrti","Renard","Squelette","Tortue","Warden","Wither","Zombie"]
 
-
 ALLOWED_ID = [595569462900424707,716306778874314782]
 
 intents = discord.Intents.default()
@@ -33,9 +37,9 @@ bot = commands.Bot(command_prefix='$', intents=intents)
 
 youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
 # Lecture de l’ID depuis le fichier (ou None si fichier vide/inexistant)
-def load_last_video_id():
+def load_last_video_id(save_file):
     try:
-        with open("video_id.txt", "r") as f:
+        with open(f"{save_file}_video_id.txt", "r") as f:
             id = f.read().strip()
             if id == "":
                 return None
@@ -44,8 +48,8 @@ def load_last_video_id():
         return None
     
 # Écriture dans le fichier
-def save_last_video_id(video_id):
-    with open("video_id.txt", "w") as f:
+def save_last_video_id(video_id, save_file):
+    with open(f"{save_file}_video_id.txt", "w") as f:
         f.write(video_id)
 
 last_video_id = None
@@ -85,22 +89,20 @@ async def send_video_notification(video_title:str,video_link:str,channel:discord
     message_ = await channel.send(f"Nouvelle vidéo en ligne :\n **{video_title}**\n 🎥 {video_link} \n ||@everyone||")
     await message_.add_reaction(choice(EMOJIES))
     await message_.add_reaction(choice(EMOJIES))
-    emoji = discord.utils.get(channel.guild.emojis, name = choice(MC_EMOJIES[:6]))
-    print(emoji)
+    emoji = discord.utils.get(channel.guild.emojis, name = choice(MC_EMOJIES))
     if emoji:
         await message_.add_reaction(emoji)
-    
 
-async def check_new_video():
+async def check_new_video(id):
     await bot.wait_until_ready()
     channel = bot.get_channel(CHANNEL_ID)
-    last_saved_video_id = load_last_video_id()
+    last_saved_video_id = load_last_video_id(id)
 
     while True:
         try:
             req = youtube.activities().list(
                 part="contentDetails",
-                channelId=YOUTUBE_CHANNEL_ID,
+                channelId=id,
                 maxResults=1
             )
             res = req.execute()
@@ -113,7 +115,7 @@ async def check_new_video():
                     if time_since_upload < MAX_VIDEO_DELAY: # si la video fait plus de SHORT_DURATION on enregistre l'id et on envoie la notif
                         if not await checkmsg(bot.get_channel(CHANNEL_ID)):
                             await send_video_notification(title,link,channel)
-                            save_last_video_id(latest_video)
+                            save_last_video_id(latest_video,id)
                             print(f"nouvelle vidéo on envoi un message et on sauvegarde l'id (latest_video: {latest_video}, last_saved_video_id: {last_saved_video_id})")
                             last_saved_video_id = latest_video
                         else:
@@ -154,7 +156,7 @@ async def send_message(interaction:discord.Interaction, message:str,channel:disc
     description="Commande accessible uniquement dans un serveur spécifique",
     guild=discord.Object(id=GUILD_ID)
 )
-async def trigger_last_notif(interaction:discord.Interaction, channel:discord.TextChannel = None):
+async def trigger_last_notif(interaction:discord.Interaction,youtube:, channel:discord.TextChannel = None):
     await interaction.response.defer(thinking=True, ephemeral=True)
     channel = bot.get_channel(CHANNEL_ID)
     try:
@@ -167,7 +169,6 @@ async def trigger_last_notif(interaction:discord.Interaction, channel:discord.Te
         if (last_id):
             _, title, link, _ = get_video_detail(last_id)
             await send_video_notification(title, link, channel)
-            print("trigger_last_notif envoyé")
             await interaction.edit_original_response(content=":white_check_mark: c'est bon")
         else:
             await interaction.edit_original_response(content=":x: le lien de la derniere vidéo n'est pas valide ")
