@@ -1,0 +1,65 @@
+# --- Identifiants par défaut ---
+# PROD
+DEFAULT_PROD_GUILD_ID: &prod_guild_id 925320149190459412
+DEFAULT_PROD_CHANNEL_ID: &prod_channel_id 925329891577196564
+# DEV
+DEFAULT_DEV_GUILD_ID: &dev_guild_id 1239690915560554608
+DEFAULT_DEV_CHANNEL_ID: &dev_channel_id 1239690916114075671
+
+# --- PUBLIC ----
+
+GUILD_ID: *dev_guild_id
+GLOBAL_CHECK_INTERVAL: 60 # 1 minute
+SHORT_DURATION: 180 # 3 minutes
+MAX_VIDEO_DELAY: 600 # 10 minutes
+ALLOWED_IDS:
+  - 595569462900424707
+  - 716306778874314782
+EMOJIS:
+  - "🔥"
+  - "👍"
+  - "😎"
+  - "🤣"
+  - "😝"
+  - "❤️"
+  - "🥳"
+  - "😋"
+  - "😂"
+  - "🤯"
+  - "😳"
+  - "🫣"
+  - "🙌"
+  - "👀"
+MC_EMOJIS:
+  - "Coffre"
+  - "Creeper"
+  - "EnderMan"
+  - "EnderDragon"
+  - "Fleches"
+  - "Bee"
+  - "Gardien"
+  - "Longuevue"
+  - "HappyGhast"
+  - "Perroquet"
+  - "Piocheendiamant"
+  - "Poissoncuit"
+  - "Pomme"
+  - "Poulet"
+  - "Pouletrti"
+  - "Renard"
+  - "Squelette"
+  - "Tortue"
+  - "Warden"
+  - "Wither"
+  - "Zombie"
+# --- Chaînes YouTube ---
+channels:
+  pikayorld:
+    youtube_channel_id: "UC4oqjwA0lPgwd4EH3rk_Www"
+    message: "Nouvelle vidéo en ligne :\n **{video_title}**\n 🎥 {video_link} \n ||@everyone||"
+    discord_channel_id: *dev_channel_id
+
+  pikayorld2:
+    youtube_channel_id: "UCoL_H-nKzebB6_IZD-c5E9w"
+    message: "Nouvelle vidéo trop bien"
+    discord_channel_id: *dev_channel_id
