@@ -9,9 +9,10 @@ DEFAULT_DEV_CHANNEL_ID: &dev_channel_id 1239690916114075671
 # --- PUBLIC ----
 
 GUILD_ID: *dev_guild_id
-GLOBAL_CHECK_INTERVAL: 60 # 1 minute
-SHORT_DURATION: 180 # 3 minutes
-MAX_VIDEO_DELAY: 600 # 10 minutes
+GLOBAL_CHECK_INTERVAL: 120 # 2 minutes
+SHORT_DURATION: 180        # 3 minutes
+MAX_VIDEO_DELAY: 600       # 10 minutes
+MIN_MESSAGE_DELAY: 50
 ALLOWED_IDS:
   - 595569462900424707
   - 716306778874314782
@@ -56,10 +57,11 @@ MC_EMOJIS:
 channels:
   pikayorld:
     youtube_channel_id: "UC4oqjwA0lPgwd4EH3rk_Www"
+    # variable disponible : {video_title},{video_link},{description},{channel_title},{thumbnail_url}
     message: "Nouvelle vidéo en ligne :\n **{video_title}**\n 🎥 {video_link} \n ||@everyone||"
     discord_channel_id: *dev_channel_id
 
   pikayorld2:
     youtube_channel_id: "UCoL_H-nKzebB6_IZD-c5E9w"
-    message: "Nouvelle vidéo trop bien"
+    message: "Nouvelle vidéo en ligne :\n **{video_title}**\n 🎥 {video_link} \n ||@everyone||"
     discord_channel_id: *dev_channel_id
