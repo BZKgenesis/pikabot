@@ -1,7 +1,7 @@
 # Pikabot
 
 Bot Discord développé en **Python** avec [discord.py](https://discordpy.readthedocs.io/)  
-Ce bot est utilisé sur le serveur Discord de **Pikayorld** pour notifier automatiquement la sortie des nouvelles vidéos YouTube et fournir quelques commandes de gestion.
+Ce bot est utilisé sur le serveur Discord de [**Pikayorld**](https://www.youtube.com/@Pikayorld) pour notifier automatiquement la sortie des nouvelles vidéos YouTube et fournir quelques commandes de gestion.
 
 ---
 
