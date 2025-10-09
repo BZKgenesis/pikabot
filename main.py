@@ -83,18 +83,17 @@ async def send_video_notification(video_title:str,video_link:str, description:st
         await message_.add_reaction(emoji)
 
 async def new_video_available(channel_info,last_saved_video_id,channel):
-    req = youtube.search().list(
-        part="snippet",
+    req = youtube.activities().list(
+        part="contentDetails",
         channelId=channel_info["youtube_channel_id"],
-        maxResults=1,
-        order="date",
-        type="video"
+        maxResults=1
     )
     res = req.execute()
+    logger.info("Youtube API Call 100pts")
     if not res.get("items"):
         logger.warning(f"Aucune vidéo trouvée pour {channel_info['youtube_channel_id']}")
         return None
-    latest_video = res["items"][0]["id"]["videoId"]
+    latest_video = res["items"][0]["contentDetails"]["upload"]["videoId"]
 
     if latest_video == last_saved_video_id: # si la video est différentes de celle enregistrée
         logger.info(f"pas de nouvelle vidéo (id identique) (latest_video: {latest_video}, last_saved_video_id: {last_saved_video_id})")
