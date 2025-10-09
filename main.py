@@ -89,7 +89,7 @@ async def new_video_available(channel_info,last_saved_video_id,channel):
         maxResults=1
     )
     res = req.execute()
-    logger.info("Youtube API Call 100pts")
+    logger.info("Youtube API Call (activities list) 1pts")
     if not res.get("items"):
         logger.warning(f"Aucune vidéo trouvée pour {channel_info['youtube_channel_id']}")
         return None
@@ -98,7 +98,7 @@ async def new_video_available(channel_info,last_saved_video_id,channel):
     if latest_video == last_saved_video_id: # si la video est différentes de celle enregistrée
         logger.info(f"pas de nouvelle vidéo (id identique) (latest_video: {latest_video}, last_saved_video_id: {last_saved_video_id})")
         return None
-    duration, title, link, time_since_upload, description, thumbnail_url, channel_title  = get_video_detail(latest_video, youtube)
+    duration, title, link, time_since_upload, description, thumbnail_url, channel_title  = get_video_detail(latest_video, youtube, logger)
     if duration < SHORT_DURATION:# si la video fait plus de SHORT_DURATION, on enregistre l'id et on envoie la notif
         logger.info(f"c'est un short on fait rien (latest_video: {latest_video}, last_saved_video_id: {last_saved_video_id})")
         return None
@@ -173,7 +173,7 @@ async def trigger_last_notif(interaction:discord.Interaction,youtube_channel_id:
             channel = bot.get_channel(cfg["discord_channel_id"])
         last_id = load_last_video_id(cfg)
         if last_id:
-            _, title, link, _, description, thumbnail_url, channel_title = get_video_detail(last_id, youtube)
+            _, title, link, _, description, thumbnail_url, channel_title = get_video_detail(last_id, youtube,logger)
             await send_video_notification(title, link,description,thumbnail_url,channel_title,cfg["message"] ,channel)
             await interaction.edit_original_response(content=":white_check_mark: c'est bon")
         else:
