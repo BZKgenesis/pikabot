@@ -94,7 +94,6 @@ def get_video_detail(youtube_video_id:str, youtube, logger)->tuple[int,str,str,i
         id=youtube_video_id
     )
     video_res = video_req.execute()
-    logger.info("Youtube API Call (videos list) 1pts")
     video_info = video_res["items"][0]
 
     duration_str = video_info["contentDetails"]["duration"]

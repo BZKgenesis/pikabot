@@ -1,6 +1,6 @@
 import discord
 from discord import app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 import asyncio
 from googleapiclient.discovery import build
 from random import choice
@@ -55,6 +55,8 @@ EMOJIS = defaults_values["EMOJIS"]
 MC_EMOJIS = defaults_values["MC_EMOJIS"]
 MIN_MESSAGE_DELAY = defaults_values["MIN_MESSAGE_DELAY"]
 
+last_videos_ids = []
+
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
@@ -82,6 +84,17 @@ async def send_video_notification(video_title:str,video_link:str, description:st
     if emoji:
         await message_.add_reaction(emoji)
 
+channel_index = 0
+channels_list = list(channels_data.values())
+
+@tasks.loop(seconds = GLOBAL_CHECK_INTERVAL)
+async def check_new_videos():
+    global channel_index
+    global channels_list
+    await check_new_video(channels_list[channel_index])
+    channel_index+=1
+    channel_index=channel_index%len(channels_list)
+
 async def new_video_available(channel_info,last_saved_video_id,channel):
     req = youtube.activities().list(
         part="contentDetails",
@@ -89,47 +102,41 @@ async def new_video_available(channel_info,last_saved_video_id,channel):
         maxResults=1
     )
     res = req.execute()
-    logger.info("Youtube API Call (activities list) 1pts")
     if not res.get("items"):
         logger.warning(f"Aucune vidéo trouvée pour {channel_info['youtube_channel_id']}")
         return None
     latest_video = res["items"][0]["contentDetails"]["upload"]["videoId"]
 
-    if latest_video == last_saved_video_id: # si la video est différentes de celle enregistrée
-        logger.info(f"pas de nouvelle vidéo (id identique) (latest_video: {latest_video}, last_saved_video_id: {last_saved_video_id})")
+    if latest_video == last_saved_video_id and not (latest_video in last_videos_ids): # si la video est différentes de celle enregistrée
+        logger.info(f"{channel_info['id']} pas de nouvelle vidéo (id identique) (latest_video: {latest_video}, last_saved_video_id: {last_saved_video_id})")
         return None
     duration, title, link, time_since_upload, description, thumbnail_url, channel_title  = get_video_detail(latest_video, youtube, logger)
     if duration < SHORT_DURATION:# si la video fait plus de SHORT_DURATION, on enregistre l'id et on envoie la notif
-        logger.info(f"c'est un short on fait rien (latest_video: {latest_video}, last_saved_video_id: {last_saved_video_id})")
+        logger.info(f"{channel_info['id']} C'est un short on fait rien (latest_video: {latest_video}, last_saved_video_id: {last_saved_video_id})")
         return None
     if time_since_upload > MAX_VIDEO_DELAY:
-        logger.info(f"delay depuis la sortie de la vidéo dépassé (delai: {time_since_upload})")
+        logger.info(f"{channel_info['id']} Delay depuis la sortie de la vidéo dépassé (delai: {time_since_upload})")
         return None
     if await check_msg(channel):
-        logger.info(f"message déjà envoyer il y a {MIN_MESSAGE_DELAY} secondes")
+        logger.info(f"{channel_info['id']} Message déjà envoyer il y a {MIN_MESSAGE_DELAY} secondes")
         return None
     return duration, title, link, time_since_upload, description, thumbnail_url, channel_title, latest_video
 
-async def check_new_video(channel_info:dict, task_id:int):
+async def check_new_video(channel_info:dict):
     await bot.wait_until_ready()
     channel = bot.get_channel(channel_info["discord_channel_id"])
     last_saved_video_id = load_last_video_id(channel_info)
-
-    await asyncio.sleep(GLOBAL_CHECK_INTERVAL*task_id)
-
-    while not bot.is_closed():
-        try:
-            result = await new_video_available(channel_info,last_saved_video_id,channel)
-            if result:
-                duration, title, link, time_since_upload, description, thumbnail_url, channel_title,latest_video = result
-                await send_video_notification(title,link,description,thumbnail_url,channel_title,channel_info["message"],channel)
-                save_last_video_id(latest_video,channel_info)
-                logger.info(f"nouvelle vidéo on envoi un message et on sauvegarde l'id (latest_video: {latest_video}, last_saved_video_id: {last_saved_video_id})")
-                last_saved_video_id = latest_video
-        except Exception as e:
-            logger.error(f"Erreur pour {channel_info['youtube_channel_id']}: {e}")
-
-        await asyncio.sleep(CHECK_INTERVAL)
+    try:
+        result = await new_video_available(channel_info,last_saved_video_id,channel)
+        if result:
+            duration, title, link, time_since_upload, description, thumbnail_url, channel_title,latest_video = result
+            await send_video_notification(title,link,description,thumbnail_url,channel_title,channel_info["message"],channel)
+            save_last_video_id(latest_video,channel_info)
+            logger.info(f"nouvelle vidéo on envoi un message et on sauvegarde l'id (latest_video: {latest_video}, last_saved_video_id: {last_saved_video_id})")
+            last_videos_ids.append(latest_video)
+            last_saved_video_id = latest_video
+    except Exception as e:
+        logger.error(f"Erreur pour {channel_info['youtube_channel_id']}: {e}")
 
 def is_allowed(interaction: discord.Interaction):
     return interaction.user.id in ALLOWED_IDS
@@ -184,6 +191,7 @@ async def trigger_last_notif(interaction:discord.Interaction,youtube_channel_id:
 
 @bot.event
 async def on_ready():
+
     try:
         await bot.tree.sync(guild=discord.Object(id=GUILD_ID))
         logger.info('Synced')
@@ -191,8 +199,11 @@ async def on_ready():
     except Exception as e:
         logger.error(f"Erreur lors de l'initialisation du bot : {e}")
     logger.info(f"Connecté en tant que {bot.user}")
+    check_new_videos.start()
+    """
     for i,ytb_channel in enumerate(channels_data.values()):
         bot.loop.create_task(check_new_video(ytb_channel,i))
+    """
 
 if __name__ == "__main__":
     bot.run(TOKEN)
