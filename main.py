@@ -111,7 +111,7 @@ async def new_video_available(channel_info,last_saved_video_id,channel):
         return None
     latest_video = res["items"][0]["contentDetails"]["upload"]["videoId"]
 
-    if latest_video == last_saved_video_id and not (latest_video in last_videos_ids): # si la video est différentes de celle enregistrée
+    if latest_video == last_saved_video_id or (latest_video in last_videos_ids): # si la video est différentes de celle enregistrée
         logger.info(f"{channel_info['id']} pas de nouvelle vidéo (id identique) (latest_video: {latest_video}, last_saved_video_id: {last_saved_video_id})")
         return None
     duration, title, link, time_since_upload, description, thumbnail_url, channel_title  = get_video_detail(latest_video, youtube, logger)
