@@ -74,7 +74,7 @@ def save_last_video_id(video_id, channel_info:dict):
         f.write(video_id)
 
 
-def get_video_detail(youtube_video_id:str, youtube, logger)->tuple[int,str,str,int,str,str,str]: # durée en secondes, titre, lien
+def get_video_detail(youtube_video_id:str, youtube, logger)->tuple[float,str,str,int,str,str,str]: # durée en secondes, titre, lien
     """
     :param youtube_video_id: The YouTube video ID.
     :param youtube: The YouTube API object.
@@ -95,7 +95,8 @@ def get_video_detail(youtube_video_id:str, youtube, logger)->tuple[int,str,str,i
     )
     video_res = video_req.execute()
     video_info = video_res["items"][0]
-
+    if "duration" not in video_info["contentDetails"]:
+        return None
     duration_str = video_info["contentDetails"]["duration"]
     duration = parse_duration(duration_str).total_seconds()
 

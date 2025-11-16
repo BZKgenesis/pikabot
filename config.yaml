@@ -63,5 +63,5 @@ channels:
 
   pikayorld2:
     youtube_channel_id: "UCoL_H-nKzebB6_IZD-c5E9w"
-    message: "Nouvelle vidéo en ligne :\n **{video_title}**\n 🎥 {video_link} \n ||@everyone||"
+    message: "Nouvelle vidéo en ligne sur la chaîne secondaire (enfin) :\n **{video_title}**\n 🎥 {video_link} \n ||@everyone||"
     discord_channel_id: *dev_channel_id

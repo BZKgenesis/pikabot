@@ -106,15 +106,19 @@ async def new_video_available(channel_info,last_saved_video_id,channel):
         logger.warning(f"Aucune vidéo trouvée pour {channel_info['youtube_channel_id']}")
         return None
     print(res["items"][0]["contentDetails"])
-    if not res["items"][0]["contentDetails"]["upload"]: 
-        logger.warning(f"{channel_info['id']} La dernière activité n'est pas un upload de vidéo !!!")
+    if "upload" not in res["items"][0]["contentDetails"]: 
+        logger.warning(f"{channel_info['id']} La dernière activité n'est pas un upload de vidéo !!! (un Post ?)")
         return None
     latest_video = res["items"][0]["contentDetails"]["upload"]["videoId"]
 
     if latest_video == last_saved_video_id or (latest_video in last_videos_ids): # si la video est différentes de celle enregistrée
         logger.info(f"{channel_info['id']} pas de nouvelle vidéo (id identique) (latest_video: {latest_video}, last_saved_video_id: {last_saved_video_id})")
         return None
-    duration, title, link, time_since_upload, description, thumbnail_url, channel_title  = get_video_detail(latest_video, youtube, logger)
+    properties = get_video_detail(latest_video, youtube, logger)
+    if properties is None:
+        logger.info(f"{channel_info['id']} La dernière activité n'est pas une vidéo (Surement un Live ?)")
+        return None
+    duration, title, link, time_since_upload, description, thumbnail_url, channel_title  = properties
     if duration < SHORT_DURATION:# si la video fait plus de SHORT_DURATION, on enregistre l'id et on envoie la notif
         logger.info(f"{channel_info['id']} C'est un short on fait rien (latest_video: {latest_video}, last_saved_video_id: {last_saved_video_id})")
         return None
