@@ -56,7 +56,8 @@ MC_EMOJIS = defaults_values["MC_EMOJIS"]
 MIN_MESSAGE_DELAY = defaults_values["MIN_MESSAGE_DELAY"]
 
 last_videos_ids = []
-
+if not os.path.exists(".env"):
+    raise Exception("fichier de variable d'environement .env manquant")
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")

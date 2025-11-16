@@ -7,6 +7,8 @@ def load_config(path: str):
     :param path: relative path to configuration file
     :return:
     """
+    if not os.path.exists(path):
+        raise Exception("Fichier de config config.yaml manquant")
     with open(path, "r", encoding="utf-8") as f:
         raw_cfg = yaml.safe_load(f)
 

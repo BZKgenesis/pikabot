@@ -59,9 +59,13 @@ channels:
     youtube_channel_id: "UC4oqjwA0lPgwd4EH3rk_Www"
     # variable disponible : {video_title},{video_link},{description},{channel_title},{thumbnail_url}
     message: "Nouvelle vidéo en ligne :\n **{video_title}**\n 🎥 {video_link} \n ||@everyone||"
+    message_short: ""
     discord_channel_id: *dev_channel_id
+    discord_channel_id_short: 1439648549821218938
 
   pikayorld2:
     youtube_channel_id: "UCoL_H-nKzebB6_IZD-c5E9w"
     message: "Nouvelle vidéo en ligne sur la chaîne secondaire (enfin) :\n **{video_title}**\n 🎥 {video_link} \n ||@everyone||"
+    message_short: ""
     discord_channel_id: *dev_channel_id
+    discord_channel_id_short: 0
