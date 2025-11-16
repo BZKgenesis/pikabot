@@ -60,7 +60,9 @@ channels:
   pikayorld:
     youtube_channel_id: "UC4oqjwA0lPgwd4EH3rk_Www"
     message: "Nouvelle vidéo :\n**{video_title}**\n🎥 {video_link}\n||@everyone||"
+    message_short: "Nouvelle vidéo :\n**{video_title}**\n🎥 {video_link}\n||@everyone||"
     discord_channel_id: 987654321098765432
+    discord_channel_id_short: 987654321098765432
 ````
 
 > 🔑 Variables disponibles dans `message` :
