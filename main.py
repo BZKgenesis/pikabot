@@ -95,7 +95,8 @@ async def check_new_videos():
     channel_index+=1
     channel_index=channel_index%len(channels_list)
 
-async def new_video_available(channel_info,last_saved_video_id,channel):
+async def new_video_available(channel_info,last_saved_video_id,channel,channel_short):
+    is_short = False
     req = youtube.activities().list(
         part="contentDetails",
         channelId=channel_info["youtube_channel_id"],
@@ -120,25 +121,32 @@ async def new_video_available(channel_info,last_saved_video_id,channel):
         return None
     duration, title, link, time_since_upload, description, thumbnail_url, channel_title  = properties
     if duration < SHORT_DURATION:# si la video fait plus de SHORT_DURATION, on enregistre l'id et on envoie la notif
-        logger.info(f"{channel_info['id']} C'est un short on fait rien (latest_video: {latest_video}, last_saved_video_id: {last_saved_video_id})")
-        return None
+        if channel_info["discord_channel_id_short"] == 0:
+            logger.info(f"{channel_info['id']} C'est un short on fait rien (latest_video: {latest_video}, last_saved_video_id: {last_saved_video_id})")
+            return None
+        is_short = True
+        
     if time_since_upload > MAX_VIDEO_DELAY:
         logger.info(f"{channel_info['id']} Delay depuis la sortie de la vidéo dépassé (delai: {time_since_upload})")
         return None
-    if await check_msg(channel):
+    check_channel = channel_short if is_short else channel
+    if await check_msg(check_channel):
         logger.info(f"{channel_info['id']} Message déjà envoyer il y a {MIN_MESSAGE_DELAY} secondes")
         return None
-    return duration, title, link, time_since_upload, description, thumbnail_url, channel_title, latest_video
+    return duration, title, link, time_since_upload, description, thumbnail_url, channel_title, latest_video, is_short
 
 async def check_new_video(channel_info:dict):
     await bot.wait_until_ready()
-    channel = bot.get_channel(channel_info["discord_channel_id"])
     last_saved_video_id = load_last_video_id(channel_info)
     try:
-        result = await new_video_available(channel_info,last_saved_video_id,channel)
+        result = await new_video_available(channel_info,last_saved_video_id,bot.get_channel(channel_info["discord_channel_id"]),bot.get_channel(channel_info["discord_channel_id_short"]))
         if result:
-            duration, title, link, time_since_upload, description, thumbnail_url, channel_title,latest_video = result
-            await send_video_notification(title,link,description,thumbnail_url,channel_title,channel_info["message"],channel)
+            duration, title, link, time_since_upload, description, thumbnail_url, channel_title,latest_video,is_short = result
+            if is_short:
+                channel = bot.get_channel(channel_info["discord_channel_id_short"])
+            else:
+                channel = bot.get_channel(channel_info["discord_channel_id"])
+            await send_video_notification(title,link,description,thumbnail_url,channel_title,channel_info["message_short"] if is_short else channel_info["message"],channel)
             save_last_video_id(latest_video,channel_info)
             logger.info(f"nouvelle vidéo on envoi un message et on sauvegarde l'id (latest_video: {latest_video}, last_saved_video_id: {last_saved_video_id})")
             last_videos_ids.append(latest_video)
