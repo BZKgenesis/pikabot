@@ -5,9 +5,9 @@ Ce bot est utilisé sur le serveur Discord de [**Pikayorld**](https://www.youtub
 
 ---
 
-## ✨ Fonctionnalités principales
+## Fonctionnalités principales
 
-### 🔔 Notifications YouTube
+### Notifications YouTube
 - Surveille automatiquement les chaînes YouTube configurées (ex. : Pikayorld, Pikayorld2).
 - Envoie un message de notification dans le canal Discord associé quand une **nouvelle vidéo** est publiée.
 - Ignore :
@@ -15,27 +15,29 @@ Ce bot est utilisé sur le serveur Discord de [**Pikayorld**](https://www.youtub
   - Les vidéos trop anciennes (au-delà d’un délai configurable).
   - Les doublons récents (évite le spam).
 
-### 🎭 Réactions automatiques
+### Réactions automatiques
 - Ajoute aléatoirement deux émojis standards et un émoji Minecraft personnalisé (si disponible sur le serveur) sous chaque notification.
 
-### ⚙️ Commandes d’administration
+### Commandes d’administration
 Disponibles uniquement pour les utilisateurs autorisés (listés dans le fichier `config.yaml`) :
 
 - **/send_message**  
   Envoie un message dans un canal Discord choisi.
 
-- **/trigger_last_notif**  
-  Ré-envoie la notification de la **dernière vidéo** détectée sur une chaîne YouTube donnée.
+- <del>**/trigger_last_notif**  
+  Ré-envoie la notification de la **dernière vidéo** détectée sur une chaîne YouTube donnée.</del>  
+  Plus maintenu
+  
 
-### 📡 Surveillance continue
+### Surveillance continue
 - Vérifie régulièrement (toutes les `GLOBAL_CHECK_INTERVAL` secondes) s’il y a de nouvelles vidéos.
 - Gère plusieurs chaînes YouTube en parallèle, avec un décallage des requètes.
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
-Le fichier `config.yaml` définit les paramètres du bot.  
+Le fichier `config.yaml` définit les paramètres du bot. Vous pourvez retrouver le fichier `config.yaml.example` comme fichier à compléter.
 Exemple :
 
 ```yaml
@@ -65,12 +67,12 @@ channels:
     discord_channel_id_short: 987654321098765432
 ````
 
-> 🔑 Variables disponibles dans `message` :
+> Variables disponibles dans `message` :
 > `{video_title}`, `{video_link}`, `{description}`, `{channel_title}`, `{thumbnail_url}`
 
 ---
 
-## 🚀 Lancer le bot
+## Lancer le bot
 
 1. **Installer les dépendances**
 
@@ -80,11 +82,12 @@ channels:
 
    (Prévoir `discord.py`, `google-api-python-client`, `python-dotenv`, `pyyaml`)
 
-2. **Configurer les variables d’environnement** dans un fichier `.env`
+2. **Configurer les variables d’environnement** dans un fichier `.env`. Vous pouvez retrouver un exemple de configuration dans le fichier `.env.example`.  
+La clé d'API Youtube est la **Youtube Data API v3** récupérable depuis le site [Google Developers Console](https://console.developers.google.com/). Plus d'information : [Youtube Data API](https://developers.google.com/youtube/v3/getting-started).
 
    ```
-   DISCORD_TOKEN=ton_token_discord
-   YOUTUBE_API_KEY=ta_clef_youtube
+   DISCORD_TOKEN=discord_token
+   YOUTUBE_API_KEY=youtube_api_key
    ```
 
 3. **Lancer le bot**
@@ -95,7 +98,7 @@ channels:
 
 ---
 
-## 📦 Structure du projet
+## Structure du projet
 
 ```
 .
@@ -108,10 +111,9 @@ channels:
 
 ---
 
-## 📝 Notes
+## Notes
 
 * Le bot synchronise automatiquement les commandes slash (`/`) au démarrage.
-* Les logs colorés aident au débogage et au suivi de l’activité du bot.
 * Prévoir des permissions suffisantes pour que le bot puisse envoyer des messages et réagir avec des émojis personnalisés.
 
 ---
