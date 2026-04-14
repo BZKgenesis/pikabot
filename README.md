@@ -3,11 +3,11 @@
 Bot Discord développé en **Python** avec [discord.py](https://discordpy.readthedocs.io/)  
 Ce bot est utilisé sur le serveur Discord de [**Pikayorld**](https://www.youtube.com/@Pikayorld) pour notifier automatiquement la sortie des nouvelles vidéos YouTube et fournir quelques commandes de gestion.
 
----
 
 ## Fonctionnalités principales
 
 ### Notifications YouTube
+
 - Surveille automatiquement les chaînes YouTube configurées (ex. : Pikayorld, Pikayorld2).
 - Envoie un message de notification dans le canal Discord associé quand une **nouvelle vidéo** est publiée.
 - Ignore :
@@ -16,24 +16,34 @@ Ce bot est utilisé sur le serveur Discord de [**Pikayorld**](https://www.youtub
   - Les doublons récents (évite le spam).
 
 ### Réactions automatiques
+
 - Ajoute aléatoirement deux émojis standards et un émoji Minecraft personnalisé (si disponible sur le serveur) sous chaque notification.
 
+### Auto Purge
+
+- Possibilité de mettre un "piège" pour les comptes qui se font pirater et qui envoie des liens/images dans pleins de salons. Si un message est envoyé dans le salon spécifié, le bot supprimera les derniers messages envoyé par cette personne (la fenêtre de temps est configurable via la commande `/autopurge_setup` ou par le fichier de configuation)
+
 ### Commandes d’administration
+
 Disponibles uniquement pour les utilisateurs autorisés (listés dans le fichier `config.yaml`) :
 
-- **/send_message**  
+- `/send_message`
   Envoie un message dans un canal Discord choisi.
 
-- <del>**/trigger_last_notif**  
+- <del>`/trigger_last_notif`  
   Ré-envoie la notification de la **dernière vidéo** détectée sur une chaîne YouTube donnée.</del>  
   Plus maintenu
-  
+
+- Auto Purge
+  - `/autopurge_status` Pour voir si c'est activé, dans quelle salon et la plage de temps des messages à supprimer
+  - `/autopurge_toggle` Pour activer/désactiver le système
+  - `/autopurge_setup <salon textuel> [fenêtre de temps (heures)]` Pour configurer le bot par contre les modifs ne seront pas gardés entre les redémmarages du bot 
 
 ### Surveillance continue
+
 - Vérifie régulièrement (toutes les `GLOBAL_CHECK_INTERVAL` secondes) s’il y a de nouvelles vidéos.
 - Gère plusieurs chaînes YouTube en parallèle, avec un décallage des requètes.
 
----
 
 ## Configuration
 
@@ -65,12 +75,16 @@ channels:
     message_short: "Nouvelle vidéo :\n**{video_title}**\n🎥 {video_link}\n||@everyone||"
     discord_channel_id: 987654321098765432
     discord_channel_id_short: 987654321098765432
-````
+
+# --- Auto Purge ---
+AUTOPURGE_ENABLED: false
+AUTOPURGE_CHANNEL_ID: 0
+AUTOPURGE_PURGE_TIME: 2 # en heure
+```
 
 > Variables disponibles dans `message` :
 > `{video_title}`, `{video_link}`, `{description}`, `{channel_title}`, `{thumbnail_url}`
 
----
 
 ## Lancer le bot
 
@@ -96,7 +110,6 @@ La clé d'API Youtube est la **Youtube Data API v3** récupérable depuis le sit
    python main.py
    ```
 
----
 
 ## Structure du projet
 
@@ -113,7 +126,9 @@ La clé d'API Youtube est la **Youtube Data API v3** récupérable depuis le sit
 
 ## Notes
 
-* Le bot synchronise automatiquement les commandes slash (`/`) au démarrage.
-* Prévoir des permissions suffisantes pour que le bot puisse envoyer des messages et réagir avec des émojis personnalisés.
+- Le bot synchronise automatiquement les commandes slash (`/`) au démarrage.
+- Prévoir des permissions suffisantes pour que le bot puisse envoyer des messages et réagir avec des émojis personnalisés.
 
 ---
+
+Pour toutes question/remarque vous pouvez ouvrir un ticket sur github ou contacter `@bzkgns` sur Discord

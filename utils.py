@@ -24,6 +24,9 @@ def load_config(path: str):
         "EMOJIS": raw_cfg.get("EMOJIS"),
         "MC_EMOJIS": raw_cfg.get("MC_EMOJIS"),
         "MIN_MESSAGE_DELAY": raw_cfg.get("MIN_MESSAGE_DELAY"),
+        "AUTOPURGE_ENABLED": bool(raw_cfg.get("AUTOPURGE_ENABLED")),
+        "AUTOPURGE_CHANNEL_ID": raw_cfg.get("AUTOPURGE_CHANNEL_ID"),
+        "AUTOPURGE_PURGE_TIME": raw_cfg.get("AUTOPURGE_PURGE_TIME"),
     }
 
     channels_data_ = raw_cfg.get("channels", {})

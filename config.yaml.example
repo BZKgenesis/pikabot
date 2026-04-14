@@ -41,3 +41,8 @@ channels:
     message_short: ""
     discord_channel_id: *prod_channel_id
     discord_channel_id_short: 0 #short désactiver
+
+# --- Auto Purge ---
+AUTOPURGE_ENABLED: false
+AUTOPURGE_CHANNEL_ID: 0
+AUTOPURGE_PURGE_TIME: 2 # en heure
